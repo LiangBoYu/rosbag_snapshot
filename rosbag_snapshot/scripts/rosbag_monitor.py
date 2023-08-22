@@ -13,7 +13,7 @@ from nav_msgs.msg import Odometry
 
 class rosbag_monitor(object):
     def __init__(self):
-        rospy.loginfo("rosbag_monitor_v_0_1_2 start")
+        rospy.loginfo("rosbag_monitor_v_0_1_3 start")
         self.errorsummary = ""
         self.has_alarm_flag = False
         self.latest_odom = None
@@ -36,15 +36,16 @@ class rosbag_monitor(object):
                 file_time = now.strftime("%Y%m%d_%H%M%S_")
                 alarm_name = str(self.errorsummary)
                 self.final_file_name = self.savepath +file_time + alarm_name + '_'
-                self.set_start_time = max(self.nowsec - self.minus_time, 0) #確保set_start_time不會小於0
+                self.set_start_time = max(self.nowsec - self.minus_time + 180 , 0) #start為發生alarm當下前3分鐘
+                self.set_stop_time = self.set_start_time + 120 #stop為發生alarm後2分鐘
                 self.start_time = rospy.Time(secs=self.set_start_time, nsecs=0)
-                self.stop_time = rospy.Time(secs=self.nowsec, nsecs=0) 
+                self.stop_time = rospy.Time(secs=self.set_stop_time, nsecs=0) 
                 with open(self.yamlfile, 'r') as rosbag_param:      
                     data = yaml.safe_load(rosbag_param) 
                     self.topics = data['topics']
                 rospy.loginfo("final_file_name:{}".format(self.final_file_name))
                 rospy.loginfo("topics:{}".format(self.topics))
-                rospy.loginfo("minus_time:{}".format(self.minus_time))
+                #rospy.loginfo("minus_time:{}".format(self.minus_time))
                 rospy.loginfo("start_time:{}".format(self.start_time))
                 rospy.loginfo("stop_time:{}".format(self.stop_time))
                 success, message = self.call_trigger_snapshot(self.final_file_name, self.topics, self.start_time, self.stop_time)
@@ -72,25 +73,6 @@ class rosbag_monitor(object):
                 # rospy.loginfo("set:{}".format(self.errorsummary))
                 # rospy.loginfo("set:{}".format(self.minus_time))
                 break
-
-
-        # #set minus time
-        # if self.errorsummary == 'RM1058' or self.errorsummary == 'RM1041':
-        #     self.minus_time = 1200
-        #     #MOVE TIME OUT
-        # elif self.errorsummary == 'RM1015' or self.errorsummary == 'RM1047':
-        #     self.minus_time = 120
-        #     #emo
-        # elif self.errorsummary == 'RM1049':
-        #     self.minus_time = 120
-        #     #LEAVE NG
-        # elif self.errorsummary == 'TB1008':
-        #     self.minus_time = 120
-        #     #DOCK NG
-        # elif self.errorsummary == 'RM1085' or self.errorsummary == 'PJ0002':
-        #     self.minus_time = 200
-        #     #TM TIMEOUT
-    
 
     def call_trigger_snapshot(self, filename, topics, start_time, stop_time):
         rospy.wait_for_service('/trigger_snapshot')
@@ -120,14 +102,3 @@ if __name__ == "__main__":
     rospy.init_node("rosbag_monitor_node", anonymous=False)
     cd = rosbag_monitor()
     rospy.spin()
-
-
-
-
-'''
-RM1058  RM1041  (MOVE TIME OUT)	NOW-1200sec
-RM1015  RM1047	(EMO)		    NOW-60sec
-RM1049		    (LEAVE NG)	    NOW-60sec
-TB1008		    (DOCK NG)	    NOW-60sec
-RM1085	PJ0002	(TM TIMEOUT)	NOW-200sec
-'''
