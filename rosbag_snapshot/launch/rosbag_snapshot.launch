@@ -1,0 +1,4 @@
+<launch>
+  <node name="snapshot" pkg="rosbag_snapshot" type="snapshot" output="screen" args="">
+  </node>
+</launch>

@@ -1,0 +1,7 @@
+<launch>
+  <node name="snapshot" pkg="rosbag_snapshot" type="snapshot" output="screen" args="">
+    <rosparam file="/home/gyro/catkin_ws/src/rosbag_snapshot/rosbag_snapshot/param/snapshot.yaml" command="load" />
+  </node>
+  <node pkg="rosbag_snapshot" type="rosbag_monitor.py" name="rosbag_monitor" output="screen">
+  </node>
+</launch>

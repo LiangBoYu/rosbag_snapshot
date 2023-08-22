@@ -1,0 +1,15 @@
+compression: LZ4
+default_duration_limit: 2000
+topics:
+  - /scan
+  - /amcl_pose
+  - /tf
+alarm_code:
+  - RM1015: 120
+  - RM1047: 120
+  - RM1049: 120
+  - TM1008: 120
+  - RM1085: 200
+  - PJ0002: 200
+  - RM1058: 1200
+  - RM1041: 1200
