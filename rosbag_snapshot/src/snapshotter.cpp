@@ -37,6 +37,7 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include <boost/scope_exit.hpp>
+#include <boost/bind.hpp>
 #include <boost/thread/xtime.hpp>
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
@@ -48,6 +49,7 @@
 #include <rosbag_snapshot/snapshotter.h>
 #include <memory>
 #include <utility>
+
 
 using std::string;
 using boost::shared_ptr;
@@ -252,7 +254,7 @@ Snapshotter::~Snapshotter()
 {
   // Each buffer contains a pointer to the subscriber and vice versa, so we need to
   // shutdown the subscriber to allow garbage collection to happen
-  for (std::pair<const std::string, boost::shared_ptr<MessageQueue>>& buffer : buffers_)
+  for (std::pair<const std::string, boost::shared_ptr<MessageQueue> >& buffer : buffers_)
   {
     buffer.second->sub_->shutdown();
   }
@@ -318,9 +320,16 @@ void Snapshotter::subscribe(string const& topic, boost::shared_ptr<MessageQueue>
   ops.queue_size = QUEUE_SIZE;
   ops.md5sum = ros::message_traits::md5sum<topic_tools::ShapeShifter>();
   ops.datatype = ros::message_traits::datatype<topic_tools::ShapeShifter>();
-  ops.helper =
-      boost::make_shared<ros::SubscriptionCallbackHelperT<const ros::MessageEvent<topic_tools::ShapeShifter const>&> >(
-          boost::bind(&Snapshotter::topicCB, this, boost::placeholders::_1, queue));
+  //20230821
+  // ops.helper =
+  //     boost::make_shared<ros::SubscriptionCallbackHelperT<const ros::MessageEvent<topic_tools::ShapeShifter const>&> >(
+  //         boost::bind(&Snapshotter::topicCB, this, boost::placeholders::_1, queue));
+
+  typedef const ros::MessageEvent<topic_tools::ShapeShifter const>& ConstMsgEventRef;
+
+  ops.helper = boost::make_shared<ros::SubscriptionCallbackHelperT<ConstMsgEventRef> >(
+    boost::bind(&Snapshotter::topicCB, this, _1, queue));
+
   *sub = nh_.subscribe(ops);
   queue->setSubscriber(sub);
 }
@@ -602,10 +611,18 @@ int Snapshotter::run()
     status_timer_ = nh_.createTimer(options_.status_period_, &Snapshotter::publishStatus, this);
 
   // Start timer to poll ROS master for topics
+  //20230821
+  // if (options_.all_topics_)
+  //   poll_topic_timer_ = nh_.createTimer(ros::Duration(1.0),
+  //                                       boost::bind(&Snapshotter::pollTopics, this,
+  //                                                   boost::placeholders::_1, &options_));
   if (options_.all_topics_)
-    poll_topic_timer_ = nh_.createTimer(ros::Duration(1.0),
-                                        boost::bind(&Snapshotter::pollTopics, this,
-                                                    boost::placeholders::_1, &options_));
+  {
+      poll_topic_timer_ = nh_.createTimer(ros::Duration(1.0),
+          boost::bind(&Snapshotter::pollTopics, this, _1, &options_));
+  }
+
+
 
   // Use multiple callback threads
   ros::MultiThreadedSpinner spinner(4);  // Use 4 threads

@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(rosbag_snapshot)
 
-find_package(catkin REQUIRED COMPONENTS rosbag rosbag_snapshot_msgs roscpp rosgraph_msgs std_srvs topic_tools)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+find_package(catkin REQUIRED COMPONENTS rosbag rosbag_snapshot_msgs roscpp rosgraph_msgs std_srvs topic_tools )
 
 find_package(Boost REQUIRED COMPONENTS program_options)
+#find_package(Boost REQUIRED COMPONENTS system thread)  
+
+
 
 catkin_package(
     CATKIN_DEPENDS rosbag rosbag_snapshot_msgs roscpp rospy rosgraph_msgs std_srvs topic_tools
@@ -25,6 +30,8 @@ target_link_libraries(rosbag_snapshot ${catkin_LIBRARIES})
 add_executable(snapshot src/snapshot.cpp)
 add_dependencies(snapshot ${catkin_EXPORTED_TARGETS})
 target_link_libraries(snapshot rosbag_snapshot ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+
+
 
 if(CATKIN_ENABLE_TESTING)
   find_package(catkin REQUIRED COMPONENTS roslint rostest)
