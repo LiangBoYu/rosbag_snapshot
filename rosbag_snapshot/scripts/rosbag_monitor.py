@@ -13,7 +13,7 @@ from nav_msgs.msg import Odometry
 
 class rosbag_monitor(object):
     def __init__(self):
-        rospy.loginfo("rosbag_monitor_v_0_1_5 start")
+        rospy.loginfo("rosbag_monitor_v_0_1_6 start")
         self.errorsummary = ""
         self.has_alarm_flag = False
         self.latest_odom = None
@@ -89,17 +89,10 @@ class rosbag_monitor(object):
                         self.set_start_time = 0
 
                     #self.set_stop_time = self.set_start_time + 120 #stop為發生alarm後2分鐘
-                    if self.set_start_time == 0:
-                        self.set_stop_time = self.nowsec
+                    if (self.errorsummary == 'RM1058') or (self.errorsummary == 'RM1041') :
+                        self.set_stop_time = self.set_start_time + (180)
                     else :
-                        self.set_stop_time = self.set_start_time + (120)
-
-
-                        
-
-
-
-
+                        self.set_stop_time = self.nowsec
 
                     self.start_time = rospy.Time(secs=self.set_start_time, nsecs=0)
                     self.stop_time = rospy.Time(secs=self.set_stop_time, nsecs=0) 
