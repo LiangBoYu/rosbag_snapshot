@@ -1,9 +1,12 @@
 compression: LZ4
 default_duration_limit: 2000
 topics:
-  - /scan
+  - /odom
+  - /urg_front/scan
+  - /urg_back/scan
   - /amcl_pose
   - /tf
+  - /tf_static
 alarm_code:
   - RM1015: 0
   - RM1047: 0
@@ -11,5 +14,6 @@ alarm_code:
   - TM1008: 0
   - RM1085: 0
   - PJ0002: 0
+  - TB1000: 0
   - RM1058: 900
   - RM1041: 900
