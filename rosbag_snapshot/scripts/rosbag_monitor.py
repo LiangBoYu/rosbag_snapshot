@@ -13,7 +13,7 @@ from nav_msgs.msg import Odometry
 
 class rosbag_monitor(object):
     def __init__(self):
-        rospy.loginfo("rosbag_monitor_v_0_1_6 start")
+        rospy.loginfo("rosbag_monitor_v_0_1_69999 start")
         self.errorsummary = ""
         self.has_alarm_flag = False
         self.latest_odom = None
