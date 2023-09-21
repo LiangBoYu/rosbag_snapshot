@@ -1,5 +1,5 @@
 compression: LZ4
-default_duration_limit: 2000
+default_duration_limit: 1000
 topics:
   - /odom
   - /urg_front/scan
